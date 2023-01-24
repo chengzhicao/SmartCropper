@@ -37,15 +37,16 @@ public class SmartCropper {
         if (srcBmp == null) {
             throw new IllegalArgumentException("srcBmp cannot be null");
         }
-        if (sImageDetector != null) {
-            Bitmap bitmap = sImageDetector.detectImage(srcBmp);
-            if (bitmap != null) {
-                srcBmp = Bitmap.createScaledBitmap(bitmap, srcBmp.getWidth(), srcBmp.getHeight(), false);
-            }
-        }
+//        if (sImageDetector != null) {
+//            Bitmap bitmap = sImageDetector.detectImage(srcBmp);
+//            if (bitmap != null) {
+//                srcBmp = Bitmap.createScaledBitmap(bitmap, srcBmp.getWidth(), srcBmp.getHeight(), false);
+//            }
+//        }
         Point[] outPoints = new Point[4];
+        Point[] outPoing = sImageDetector.detectImage2(srcBmp);
         nativeScan(srcBmp, outPoints, sImageDetector == null);
-        return outPoints;
+        return outPoing;
     }
 
     /**
@@ -83,7 +84,7 @@ public class SmartCropper {
     private static native void nativeCrop(Bitmap srcBitmap, Point[] points, Bitmap outBitmap);
 
     static {
-        System.loadLibrary("smart_cropper");
+//        System.loadLibrary("smart_cropper");
     }
 
 }

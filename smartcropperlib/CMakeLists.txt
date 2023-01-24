@@ -9,9 +9,14 @@ set(TARGET smart_cropper)
 set(SRC_DIR src/main/cpp/)
 set(OPENCV_LIB_DIR opencv/lib/${ANDROID_ABI}/)
 set(OPENCV_3RD_LIB_DIR opencv/3rdparty/${ANDROID_ABI}/)
+#set(DOBBY_GENERATE_SHARED OFF)
+#SET_OPTION(DOBBY_DEBUG ON)
+set(DOBBY_SOURCE_DIR Dobby)
+add_subdirectory(${DOBBY_SOURCE_DIR} dobby.out)
 
 include_directories(opencv/include
-                    src/main/cpp/include)
+                    src/main/cpp/include
+        Dobby/examples)
 
 
 link_directories(${OPENCV_LIB_DIR}
@@ -40,8 +45,8 @@ target_link_libraries(${TARGET} log jnigraphics z)
 # build script, prebuilt third-party libraries, or system libraries.
 
 if(${ANDROID_ABI} STREQUAL x86 OR ${ANDROID_ABI} STREQUAL x86_64)
-target_link_libraries(${TARGET} opencv_imgproc opencv_core ippiw ippicv ittnotify tbb cpufeatures)
+target_link_libraries(${TARGET} dobby opencv_imgproc opencv_core ippiw ippicv ittnotify tbb cpufeatures)
 else()
-target_link_libraries(${TARGET} opencv_imgproc opencv_core tegra_hal tbb cpufeatures)
+target_link_libraries(${TARGET} dobby opencv_imgproc opencv_core tegra_hal tbb cpufeatures)
 endif()
 

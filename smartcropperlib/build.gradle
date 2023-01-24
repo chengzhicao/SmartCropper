@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.pqpo'
 
 android {
     compileSdkVersion 29
@@ -14,11 +12,11 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions"
-                abiFilters 'armeabi-v7a', "arm64-v8a", 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
             }
         }
-
+        ndkVersion "21.1.6352462"
     }
     buildTypes {
         release {
@@ -31,6 +29,11 @@ android {
             path "CMakeLists.txt"
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDir 'libs'
+        }
+    }
     lintOptions {
         abortOnError false
     }
@@ -38,5 +41,7 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'org.tensorflow:tensorflow-lite:1.13.1'
+    implementation 'org.tensorflow:tensorflow-lite:2.9.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.2'
+    implementation 'com.google.code.gson:gson:2.10'
 }

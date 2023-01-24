@@ -1,0 +1,27 @@
+package me.pqpo.smartcropperlib;
+
+import android.util.Log;
+
+import java.nio.ByteBuffer;
+
+public class JniCallBack {
+    public void callBack(ByteBuffer byteBuffer) {
+//        double[] f = new double[byteBuffer.limit() / 4];
+        byte[] b = new byte[byteBuffer.limit()];
+        byteBuffer.rewind();
+        for (int i = 0; i < b.length; i++) {
+            b[i] = byteBuffer.get();
+        }
+//        byteBuffer.clear();
+        callBack2(b);
+        Log.i("Joifweg", "oowow");
+    }
+
+    public void callBack2(byte[] bytes) {
+        byte[] bb = new byte[1000];
+        for (int i = 0; i < bb.length; i++) {
+            bb[i] = bytes[i];
+        }
+        Log.i("Joifweg", "oowow");
+    }
+}

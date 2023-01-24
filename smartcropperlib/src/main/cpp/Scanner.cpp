@@ -132,6 +132,7 @@ Mat Scanner::resizeImage() {
         Size size(width, height);
         Mat resizedBitmap(size, CV_8UC3);
         resize(srcBitmap, resizedBitmap, size);
+        srcBitmap/5.0;
         return resizedBitmap;
     }
     return srcBitmap;
