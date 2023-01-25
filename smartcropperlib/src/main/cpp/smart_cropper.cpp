@@ -36,57 +36,38 @@ static jobject createJavaPoint(JNIEnv *env, Point point_) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_me_pqpo_smartcropperlib_SmartCropper_nativeScan(JNIEnv
-*env,
-jclass type, jobject
-srcBitmap,
-jobjectArray outPoint_, jboolean
-canny) {
-if (env->
-GetArrayLength(outPoint_)
-!= 4) {
-return;
-}
-Mat srcBitmapMat;
-bitmap_to_mat(env, srcBitmap, srcBitmapMat
-);
+                                                     *env,
+                                                     jclass type, jobject
+                                                     srcBitmap,
+                                                     jobjectArray outPoint_, jboolean
+                                                     canny) {
+    if (env->GetArrayLength(outPoint_) != 4) {
+        return;
+    }
+    Mat srcBitmapMat;
+    bitmap_to_mat(env, srcBitmap, srcBitmapMat);
 //    hbuuu(1, "aa", "bb");
-Mat bgrData(srcBitmapMat.rows, srcBitmapMat.cols, CV_8UC3);
-cvtColor(srcBitmapMat, bgrData, COLOR_RGBA2BGR
-);
-scanner::Scanner docScanner(bgrData, canny);
-std::vector <Point> scanPoints = docScanner.scanPoint();
-if (scanPoints.
-
-size()
-
-== 4) {
-for (
-int i = 0;
-i < 4; ++i) {
-env->
-SetObjectArrayElement(outPoint_, i, createJavaPoint(env, scanPoints[i])
-);
-}
-}
+    Mat bgrData(srcBitmapMat.rows, srcBitmapMat.cols, CV_8UC3);
+    cvtColor(srcBitmapMat, bgrData, COLOR_RGBA2BGR);
+    scanner::Scanner docScanner(bgrData, canny);
+    std::vector<Point> scanPoints = docScanner.scanPoint();
+    if (scanPoints.size() == 4) {
+        for (int i = 0; i < 4; ++i) {
+            env->SetObjectArrayElement(outPoint_, i, createJavaPoint(env, scanPoints[i]));
+        }
+    }
 }
 
-static vector <Point> pointsToNative(JNIEnv * env, jobjectArray
-points_) {
-int arrayLength = env->GetArrayLength(points_);
-vector <Point> result;
-for (
-int i = 0;
-i<arrayLength;
-i++) {
-jobject point_ = env->GetObjectArrayElement(points_, i);
-int pX = env->GetIntField(point_, gPointInfo.jFieldIDX);
-int pY = env->GetIntField(point_, gPointInfo.jFieldIDY);
-result.
-push_back(Point(pX, pY)
-);
-}
-return
-result;
+static vector<Point> pointsToNative(JNIEnv *env, jobjectArray points_) {
+    int arrayLength = env->GetArrayLength(points_);
+    vector<Point> result;
+    for (int i = 0; i < arrayLength; i++) {
+        jobject point_ = env->GetObjectArrayElement(points_, i);
+        int pX = env->GetIntField(point_, gPointInfo.jFieldIDX);
+        int pY = env->GetIntField(point_, gPointInfo.jFieldIDY);
+        result.push_back(Point(pX, pY));
+    }
+    return result;
 }
 
 void callJava(const void *a3, int a8) {
@@ -107,8 +88,8 @@ int new_getOut(void *a1, const char *a2, void *a3) {
     return r;
 }
 
-int (*orig_setInput)(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7,
-                     int a8);
+int
+(*orig_setInput)(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7, int a8);
 
 int
 new_setInput(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7, int a8) {
@@ -128,115 +109,62 @@ __attribute__((constructor)) static void ctor() {
 //
     DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
               (dobby_dummy_func_t) new_getOut,
-              (dobby_dummy_func_t * ) & orig_getOut);
+              (dobby_dummy_func_t *) &orig_getOut);
     DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii"),
               (dobby_dummy_func_t) new_setInput,
-              (dobby_dummy_func_t * ) & orig_setInput);
+              (dobby_dummy_func_t *) &orig_setInput);
 }
 
-extern "C"
-JNIEXPORT void JNICALL
+extern "C" JNIEXPORT void JNICALL
 Java_me_pqpo_smartcropperlib_SmartCropper_nativeCrop(JNIEnv
-*env,
-jclass type, jobject
-srcBitmap,
-jobjectArray points_, jobject
-outBitmap) {
-std::vector <Point> points = pointsToNative(env, points_);
-if (points.
+                                                     *env,
+                                                     jclass type, jobject
+                                                     srcBitmap,
+                                                     jobjectArray points_, jobject
+                                                     outBitmap) {
+    std::vector<Point> points = pointsToNative(env, points_);
+    if (points.size() != 4) {
+        return;
+    }
+    Point leftTop = points[0];
+    Point rightTop = points[1];
+    Point rightBottom = points[2];
+    Point leftBottom = points[3];
 
-size()
+    Mat srcBitmapMat;
+    bitmap_to_mat(env, srcBitmap, srcBitmapMat);
 
-!= 4) {
-return;
-}
-Point leftTop = points[0];
-Point rightTop = points[1];
-Point rightBottom = points[2];
-Point leftBottom = points[3];
+    AndroidBitmapInfo outBitmapInfo;
+    AndroidBitmap_getInfo(env, outBitmap, &outBitmapInfo);
+    Mat dstBitmapMat;
+    int newHeight = outBitmapInfo.height;
+    int newWidth = outBitmapInfo.width;
+    dstBitmapMat = Mat::zeros(newHeight, newWidth, srcBitmapMat.type());
 
-Mat srcBitmapMat;
-bitmap_to_mat(env, srcBitmap, srcBitmapMat
-);
+    std::vector<Point2f> srcTriangle;
+    std::vector<Point2f> dstTriangle;
 
-AndroidBitmapInfo outBitmapInfo;
-AndroidBitmap_getInfo(env, outBitmap, &outBitmapInfo
-);
-Mat dstBitmapMat;
-int newHeight = outBitmapInfo.height;
-int newWidth = outBitmapInfo.width;
-dstBitmapMat = Mat::zeros(newHeight, newWidth, srcBitmapMat.type());
+    srcTriangle.push_back(Point2f(leftTop.x, leftTop.y));
+    srcTriangle.push_back(Point2f(rightTop.x, rightTop.y));
+    srcTriangle.push_back(Point2f(leftBottom.x, leftBottom.y));
+    srcTriangle.push_back(Point2f(rightBottom.x, rightBottom.y));
+    dstTriangle.push_back(Point2f(0, 0));
+    dstTriangle.push_back(Point2f(newWidth, 0));
+    dstTriangle.push_back(Point2f(0, newHeight));
+    dstTriangle.push_back(Point2f(newWidth, newHeight));
 
-std::vector <Point2f> srcTriangle;
-std::vector <Point2f> dstTriangle;
+    Mat transform = getPerspectiveTransform(srcTriangle, dstTriangle);
+    warpPerspective(srcBitmapMat, dstBitmapMat, transform, dstBitmapMat.size());
 
-srcTriangle.
-push_back(Point2f(leftTop.x, leftTop.y)
-);
-srcTriangle.
-push_back(Point2f(rightTop.x, rightTop.y)
-);
-srcTriangle.
-push_back(Point2f(leftBottom.x, leftBottom.y)
-);
-srcTriangle.
-push_back(Point2f(rightBottom.x, rightBottom.y)
-);
-
-dstTriangle.
-push_back(Point2f(0, 0)
-);
-dstTriangle.
-push_back(Point2f(newWidth, 0)
-);
-dstTriangle.
-push_back(Point2f(0, newHeight)
-);
-dstTriangle.
-push_back(Point2f(newWidth, newHeight)
-);
-
-Mat transform = getPerspectiveTransform(srcTriangle, dstTriangle);
-warpPerspective(srcBitmapMat, dstBitmapMat, transform, dstBitmapMat
-.
-
-size()
-
-);
-
-mat_to_bitmap(env, dstBitmapMat, outBitmap
-);
+    mat_to_bitmap(env, dstBitmapMat, outBitmap);
 }
 
-//static JNINativeMethod gMethods[] = {
-//
-//        {
-//                "nativeScan",
-//                "(Landroid/graphics/Bitmap;[Landroid/graphics/Point;Z)V",
-//                (void*)native_scan
-//        },
-//
-//        {
-//                "nativeCrop",
-//                "(Landroid/graphics/Bitmap;[Landroid/graphics/Point;Landroid/graphics/Bitmap;)V",
-//                (void*)native_crop
-//        }
-//
-//};
-
-extern "C"
-JNIEXPORT jint
-
-JNICALL
+extern "C" JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv * env = NULL;
+    JNIEnv *env = NULL;
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
         return JNI_FALSE;
     }
-//    jclass classDocScanner = env->FindClass(kClassDocScanner);
-//    if(env -> RegisterNatives(classDocScanner, gMethods, sizeof(gMethods)/ sizeof(gMethods[0])) < 0) {
-//        return JNI_FALSE;
-//    }
     initClassInfo(env);
     return JNI_VERSION_1_4;
 }
