@@ -152,9 +152,9 @@ int new_parseJ2cPoint(void *a1) {
 __attribute__((constructor)) static void ctor() {
     // Write hook functions here
     __android_log_print(ANDROID_LOG_DEBUG, "ifwoowe", "初始");
-    void *address = DobbySymbolResolver(NULL, "_ZN14VcapdocScanner9netExcuteEv");
-    DobbyHook(address, (dobby_dummy_func_t) new_parseJ2cPoint,
-              (dobby_dummy_func_t *) &orig_parseJ2cPoint);
+//    void *address = DobbySymbolResolver(NULL, "_ZN14VcapdocScanner9netExcuteEv");
+//    DobbyHook(address, (dobby_dummy_func_t) new_parseJ2cPoint,
+//              (dobby_dummy_func_t *) &orig_parseJ2cPoint);
 
     DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
               (dobby_dummy_func_t) new_hbuuu,

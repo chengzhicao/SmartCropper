@@ -37,16 +37,16 @@ public class SmartCropper {
         if (srcBmp == null) {
             throw new IllegalArgumentException("srcBmp cannot be null");
         }
-//        if (sImageDetector != null) {
-//            Bitmap bitmap = sImageDetector.detectImage(srcBmp);
-//            if (bitmap != null) {
-//                srcBmp = Bitmap.createScaledBitmap(bitmap, srcBmp.getWidth(), srcBmp.getHeight(), false);
-//            }
-//        }
-//        Point[] outPoints = new Point[4];
-        Point[] outPoing = sImageDetector.detectImage2(srcBmp);
+        if (sImageDetector != null) {
+            Bitmap bitmap = sImageDetector.detectImage(srcBmp);
+            if (bitmap != null) {
+                srcBmp = Bitmap.createScaledBitmap(bitmap, srcBmp.getWidth(), srcBmp.getHeight(), false);
+            }
+        }
+        Point[] outPoints = new Point[4];
+//        Point[] outPoing = sImageDetector.detectImage2(srcBmp);
 //        nativeScan(srcBmp, outPoints, sImageDetector == null);
-        return outPoing;
+        return outPoints;
     }
 
     /**

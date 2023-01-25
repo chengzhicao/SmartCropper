@@ -20,6 +20,8 @@ import org.tensorflow.lite.support.image.ops.ResizeOp;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 
+import me.pqpo.smartcropperlib.samplecode.Detect;
+
 public class ImageDetector {
 
     private static final String MODEL_FILE = "models/hed_lite_model_quantize.tflite";
@@ -37,9 +39,9 @@ public class ImageDetector {
     private DocDetectApi docDetectApi;
 
     public ImageDetector(Context context, String modelFile) throws IOException {
-        docDetectApi = new DocDetectApi();
-        boolean i = docDetectApi.initModel(context, 0, "com.wibo.bigbong.ocr");
-        Log.i("joifweg", i + "");
+//        docDetectApi = new DocDetectApi();
+//        boolean i = docDetectApi.initModel(context, 0, "com.wibo.bigbong.ocr");
+//        Log.i("joifweg", i + "");
         this.context = context;
         if (TextUtils.isEmpty(modelFile)) {
             modelFile = MODEL_FILE;
@@ -65,7 +67,7 @@ public class ImageDetector {
 //        TensorBuffer probabilityBuffer =
 //                TensorBuffer.createFixedSize(new int[]{1, desiredSize * desiredSize}, DataType.FLOAT32);
 //        tflite.run(tensorImage.getBuffer(), probabilityBuffer.getBuffer());
-//        float[] detect = new Detect().detect(context, tensorImage.getBitmap());
+        float[] detect = new Detect().detect(context, tensorImage.getBitmap());
         return Bitmap.createBitmap(desiredSize, desiredSize, Bitmap.Config.ARGB_8888);
     }
 
