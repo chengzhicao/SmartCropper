@@ -6,14 +6,14 @@ import java.nio.ByteBuffer;
 
 public class JniCallBack {
     public void callBack(ByteBuffer byteBuffer) {
-//        double[] f = new double[byteBuffer.limit() / 4];
-        byte[] b = new byte[byteBuffer.limit()];
+        float[] f = new float[byteBuffer.limit() / 4];
+//        byte[] b = new byte[byteBuffer.limit()];
         byteBuffer.rewind();
-        for (int i = 0; i < b.length; i++) {
-            b[i] = byteBuffer.get();
+        for (int i = 0; i < f.length; i++) {
+            f[i] = byteBuffer.getFloat();
         }
 //        byteBuffer.clear();
-        callBack2(b);
+//        callBack2(b);
         Log.i("Joifweg", "oowow");
     }
 

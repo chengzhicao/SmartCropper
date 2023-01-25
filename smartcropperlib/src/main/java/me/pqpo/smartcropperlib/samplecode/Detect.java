@@ -31,7 +31,7 @@ public class Detect {
                 mInputByteSize);
         mVcapNet.forward();
         float[] mNetOutputData = new float[size * size];
-        mVcapNet.getOutput("hed/dsn_fuse/conv2d/Conv2D", mNetOutputData);
+//        mVcapNet.getOutput("hed/dsn_fuse/conv2d/Conv2D", mNetOutputData);
         Log.i("Joifweg", mNetOutputData.length + "");
 //        float result[] = Utils.softmax(mNetOutputData, 256 * 256);
         return mNetOutputData;

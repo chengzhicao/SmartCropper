@@ -43,9 +43,9 @@ public class SmartCropper {
 //                srcBmp = Bitmap.createScaledBitmap(bitmap, srcBmp.getWidth(), srcBmp.getHeight(), false);
 //            }
 //        }
-        Point[] outPoints = new Point[4];
+//        Point[] outPoints = new Point[4];
         Point[] outPoing = sImageDetector.detectImage2(srcBmp);
-        nativeScan(srcBmp, outPoints, sImageDetector == null);
+//        nativeScan(srcBmp, outPoints, sImageDetector == null);
         return outPoing;
     }
 

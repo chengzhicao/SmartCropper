@@ -98,24 +98,49 @@ static int my_libtest_log_print(int prio, const char *tag, const char *fmt, ...)
     return r;
 }
 
-void (*orig_hbuuu)(const char *s1, int a, const char *s2);
-
-void new_hbuuu(int a, const char *s1, const char *s2) {
-    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了..%s..%s..%d", s1, s2, a);
-}
-
-void (*orig_parseJ2cPoint)();
-
-void
-new_parseJ2cPoint(int a1, char *a2, void *a3, int a4, int a5, int a6, int a7, int a8) {
-    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了");
-    jobject obj = gPointInfo.env->NewDirectByteBuffer(a3, a8);
-//    gPointInfo.env->SetByteArrayRegion(array, 0, 0, len, (jbyte *) buffer);
+void callJava(const void *a3, int a8) {
+    jobject obj = gPointInfo.env->NewDirectByteBuffer(const_cast<void *>(a3), a8);
     jclass jclazz = gPointInfo.env->FindClass("me/pqpo/smartcropperlib/JniCallBack");
     jmethodID jmethodIds = gPointInfo.env->GetMethodID(jclazz, "callBack",
                                                        "(Ljava/nio/ByteBuffer;)V");
     jobject object = gPointInfo.env->AllocObject(jclazz);
     gPointInfo.env->CallVoidMethod(object, jmethodIds, obj);
+}
+
+int (*orig_hbuuu)(void *a1, const char *a2, void *a3);
+
+int new_hbuuu(void *a1, const char *a2, void *a3) {
+    int r = orig_hbuuu(a1, a2, a3);
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "outPut..被hook了..%p..%s..%p", a1, a2, a3);
+    callJava(a3, 256 * 256*4);
+    return r;
+}
+
+int (*orig_parseJ2cPoint)(void *a1);
+
+int new_parseJ2cPoint(void *a1) {
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了..%p", a1);
+    int result = orig_parseJ2cPoint(a1);
+//    void *a = *((void **) a1 + 1);
+//    __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "哈哈...%d", a);
+//    if ((*(a1 + 56) & 1) != 0) {
+//        __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "1111");
+//    } else {
+////        char nn[100];
+////        memcpy(nn, a1 + 57, a8);
+////        int *addr = a1+58;
+//        const char *str;
+//        strcpy(reinterpret_cast<char *const>(a1 + 58), str);
+//        __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "2222..%s", str);
+//    }
+    return result;
+//    jobject obj = gPointInfo.env->NewDirectByteBuffer(a3, a8);
+////    gPointInfo.env->SetByteArrayRegion(array, 0, 0, len, (jbyte *) buffer);
+//    jclass jclazz = gPointInfo.env->FindClass("me/pqpo/smartcropperlib/JniCallBack");
+//    jmethodID jmethodIds = gPointInfo.env->GetMethodID(jclazz, "callBack",
+//                                                       "(Ljava/nio/ByteBuffer;)V");
+//    jobject object = gPointInfo.env->AllocObject(jclazz);
+//    gPointInfo.env->CallVoidMethod(object, jmethodIds, obj);
 }
 
 //void
@@ -124,26 +149,16 @@ new_parseJ2cPoint(int a1, char *a2, void *a3, int a4, int a5, int a6, int a7, in
 //                        a1, a2, a3, a4, a5, a6, a7, a8);
 //}
 
-//void
-//new_parseJ2cPoint(int a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7, int a8) {
-////    char nn[a8];
-////    memcpy(nn, a3, a8);
-//    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了");
-//    jbyteArray array = gPointInfo.env->NewByteArray(a8);
-//    gPointInfo.env->SetByteArrayRegion(array, 0, a8, (jbyte *) a3);
-//    jclass jclazz = gPointInfo.env->FindClass("me/pqpo/smartcropperlib/JniCallBack");
-//    jmethodID jmethodIds = gPointInfo.env->GetMethodID(jclazz, "callBack2",
-//                                                       "([B)V");
-//    jobject object = gPointInfo.env->AllocObject(jclazz);
-//    gPointInfo.env->CallVoidMethod(object, jmethodIds, array);
-//}
-
 __attribute__((constructor)) static void ctor() {
     // Write hook functions here
     __android_log_print(ANDROID_LOG_DEBUG, "ifwoowe", "初始");
-    void *address = DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii");
+    void *address = DobbySymbolResolver(NULL, "_ZN14VcapdocScanner9netExcuteEv");
     DobbyHook(address, (dobby_dummy_func_t) new_parseJ2cPoint,
               (dobby_dummy_func_t *) &orig_parseJ2cPoint);
+
+    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
+              (dobby_dummy_func_t) new_hbuuu,
+              (dobby_dummy_func_t *) &orig_hbuuu);
 }
 
 extern "C"
