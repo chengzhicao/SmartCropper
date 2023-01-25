@@ -37,9 +37,6 @@ public class ImageDetector {
     private DocDetectApi docDetectApi;
 
     public ImageDetector(Context context, String modelFile) throws IOException {
-        docDetectApi = new DocDetectApi();
-        boolean i = docDetectApi.initModel(context, 0, "com.wibo.bigbong.ocr");
-        Log.i("joifweg", i + "");
         this.context = context;
         if (TextUtils.isEmpty(modelFile)) {
             modelFile = MODEL_FILE;
@@ -70,6 +67,11 @@ public class ImageDetector {
     }
 
     public synchronized Point[] detectImage2(Bitmap bitmap) {
+        if (docDetectApi == null) {
+            docDetectApi = new DocDetectApi();
+            boolean i = docDetectApi.initModel(context, 0, "com.wibo.bigbong.ocr");
+            Log.i("joifweg", i + "");
+        }
         if (bitmap == null) {
             return null;
         }

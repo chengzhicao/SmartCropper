@@ -133,7 +133,7 @@ public class DocDetectApi {
 //                isInitSuccess = true;
 //            }
             r4 = r0.open(com.wibo.doc.jni.DocDetectApi.mModelAssetsNameshot);
-            boolean r1 = com.wibo.doc.jni.DocDetect.initDocDetectModel(toByteArray(r4), 1, false, r19, 1, toByteArray(r0.open(com.wibo.doc.jni.DocDetectApi.mModelAssetsNameshotDet)));
+            boolean r1 = com.wibo.doc.jni.DocDetect.initDocDetectModel(toByteArray(r4), 0, false, "", 1, new byte[]{});
             if (r1) {
                 isInitSuccess = true;
             }

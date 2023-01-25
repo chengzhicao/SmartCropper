@@ -7,6 +7,7 @@
 #include <Scanner.h>
 #include <android/log.h>
 #include "../../Dobby/include/dobby.h"
+#include "vcap_instance.h"
 
 using namespace std;
 
@@ -100,6 +101,28 @@ new_setInput(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, i
     return orig_setInput(a1, a2, a3, a4, a5, a6, a7, a8);
 }
 
+int
+(*orig_initNet)(void *a1, char *a2, int a3, int a4, char *a5, char *a6);
+
+int
+new_initNet(void *a1, char *a2, int a3, int a4, char *a5, char *a6) {
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo",
+                        "initNet被hook了..%p..%s..%d..%d..%s..%s",
+                        a1, a2, a3, a4, a5, a6);
+    return orig_initNet(a1, a2, a3, a4, a5, a6);
+}
+
+int
+(*orig_createNeural)(VcapInstance *a1, vcap::BuildConfig *a2);
+
+int
+new_createNeural(VcapInstance *a1, vcap::BuildConfig *a2) {
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo",
+                        "createNeural被hook了..%p..%p..%s",
+                        a1, a2, a2->output_format);
+    return orig_createNeural(a1, a2);
+}
+
 __attribute__((constructor)) static void ctor() {
     // Write hook functions here
     __android_log_print(ANDROID_LOG_DEBUG, "ifwoowe", "初始");
@@ -113,6 +136,13 @@ __attribute__((constructor)) static void ctor() {
     DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii"),
               (dobby_dummy_func_t) new_setInput,
               (dobby_dummy_func_t *) &orig_setInput);
+    DobbyHook(DobbySymbolResolver(NULL, "_ZN14VcapdocScanner17initNetWithBufferEPciiPKcS0_"),
+              (dobby_dummy_func_t) new_initNet,
+              (dobby_dummy_func_t *) &orig_initNet);
+    DobbyHook(DobbySymbolResolver(NULL,
+                                  "_ZN12VcapInstance19createNeuralNetworkERN4vcap15VcapBuildConfigE"),
+              (dobby_dummy_func_t) new_createNeural,
+              (dobby_dummy_func_t *) &orig_createNeural);
 }
 
 extern "C" JNIEXPORT void JNICALL
