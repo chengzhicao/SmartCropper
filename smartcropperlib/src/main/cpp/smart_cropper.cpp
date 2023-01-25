@@ -33,69 +33,60 @@ static jobject createJavaPoint(JNIEnv *env, Point point_) {
     return env->NewObject(gPointInfo.jClassPoint, gPointInfo.jMethodInit, point_.x, point_.y);
 }
 
-void hbuuu(int a, const char *s1, const char *s2) {
-    __android_log_print(ANDROID_LOG_DEBUG, "ofiweg", "我是原来方法");
-}
-
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_pqpo_smartcropperlib_SmartCropper_nativeScan(JNIEnv *env, jclass type, jobject srcBitmap,
-                                                     jobjectArray outPoint_, jboolean canny) {
-    if (env->GetArrayLength(outPoint_) != 4) {
+Java_me_pqpo_smartcropperlib_SmartCropper_nativeScan(JNIEnv
+                                                     *env,
+                                                     jclass type, jobject
+                                                     srcBitmap,
+                                                     jobjectArray outPoint_, jboolean
+                                                     canny) {
+    if (env->
+            GetArrayLength(outPoint_)
+        != 4) {
         return;
     }
     Mat srcBitmapMat;
-    bitmap_to_mat(env, srcBitmap, srcBitmapMat);
+    bitmap_to_mat(env, srcBitmap, srcBitmapMat
+    );
 //    hbuuu(1, "aa", "bb");
     Mat bgrData(srcBitmapMat.rows, srcBitmapMat.cols, CV_8UC3);
-    cvtColor(srcBitmapMat, bgrData, COLOR_RGBA2BGR);
+    cvtColor(srcBitmapMat, bgrData, COLOR_RGBA2BGR
+    );
     scanner::Scanner docScanner(bgrData, canny);
-    std::vector<Point> scanPoints = docScanner.scanPoint();
-    if (scanPoints.size() == 4) {
-        for (int i = 0; i < 4; ++i) {
-            env->SetObjectArrayElement(outPoint_, i, createJavaPoint(env, scanPoints[i]));
+    std::vector <Point> scanPoints = docScanner.scanPoint();
+    if (scanPoints.
+
+            size()
+
+        == 4) {
+        for (
+                int i = 0;
+                i < 4; ++i) {
+            env->
+                    SetObjectArrayElement(outPoint_, i, createJavaPoint(env, scanPoints[i])
+            );
         }
     }
 }
 
-static vector<Point> pointsToNative(JNIEnv *env, jobjectArray points_) {
+static vector <Point> pointsToNative(JNIEnv * env, jobjectArray
+points_) {
     int arrayLength = env->GetArrayLength(points_);
-    vector<Point> result;
-    for (int i = 0; i < arrayLength; i++) {
+    vector <Point> result;
+    for (
+            int i = 0;
+            i<arrayLength;
+            i++) {
         jobject point_ = env->GetObjectArrayElement(points_, i);
         int pX = env->GetIntField(point_, gPointInfo.jFieldIDX);
         int pY = env->GetIntField(point_, gPointInfo.jFieldIDY);
-        result.push_back(Point(pX, pY));
+        result.
+                push_back(Point(pX, pY)
+        );
     }
-    return result;
-}
-
-static void (*orig_Java_me_pqpo_smartcropperlib_SmartCropper_nativeScan)(JNIEnv *env, jclass type,
-                                                                         jobject srcBitmap,
-                                                                         jobjectArray outPoint_,
-                                                                         jboolean canny);
-
-extern "C"
-JNIEXPORT void JNICALL
-new_Java_me_pqpo_smartcropperlib_SmartCropper_nativeScan(JNIEnv *env, jclass type,
-                                                         jobject srcBitmap,
-                                                         jobjectArray outPoint_, jboolean canny) {
-    __android_log_print(ANDROID_LOG_DEBUG, "ofiweg", "我被hook了");
-}
-
-static int (*orig_log_print)(int prio, const char *tag, const char *fmt, ...);
-
-static int my_libtest_log_print(int prio, const char *tag, const char *fmt, ...) {
-    va_list ap;
-    char buf[1024];
-    int r;
-
-    snprintf(buf, sizeof(buf), "[%s] %s", (NULL == tag ? "" : tag), (NULL == fmt ? "" : fmt));
-
-    va_start(ap, fmt);
-    r = __android_log_vprint(prio, "Dobby_libtest", buf, ap);
-    va_end(ap);
-    return r;
+    return
+            result;
 }
 
 void callJava(const void *a3, int a8) {
@@ -107,47 +98,26 @@ void callJava(const void *a3, int a8) {
     gPointInfo.env->CallVoidMethod(object, jmethodIds, obj);
 }
 
-int (*orig_hbuuu)(void *a1, const char *a2, void *a3);
+int (*orig_getOut)(void *a1, const char *a2, void *a3);
 
-int new_hbuuu(void *a1, const char *a2, void *a3) {
-    int r = orig_hbuuu(a1, a2, a3);
-    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "outPut..被hook了..%p..%s..%p", a1, a2, a3);
-    callJava(a3, 256 * 256*4);
+int new_getOut(void *a1, const char *a2, void *a3) {
+    int r = orig_getOut(a1, a2, a3);
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "getOutPut被hook了..%p..%s..%p", a1, a2, a3);
+    callJava(a3, 256 * 256 * 4);
     return r;
 }
 
-int (*orig_parseJ2cPoint)(void *a1);
+int (*orig_setInput)(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7,
+                     int a8);
 
-int new_parseJ2cPoint(void *a1) {
-    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了..%p", a1);
-    int result = orig_parseJ2cPoint(a1);
-//    void *a = *((void **) a1 + 1);
-//    __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "哈哈...%d", a);
-//    if ((*(a1 + 56) & 1) != 0) {
-//        __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "1111");
-//    } else {
-////        char nn[100];
-////        memcpy(nn, a1 + 57, a8);
-////        int *addr = a1+58;
-//        const char *str;
-//        strcpy(reinterpret_cast<char *const>(a1 + 58), str);
-//        __android_log_print(ANDROID_LOG_DEBUG, "resultttt", "2222..%s", str);
-//    }
-    return result;
-//    jobject obj = gPointInfo.env->NewDirectByteBuffer(a3, a8);
-////    gPointInfo.env->SetByteArrayRegion(array, 0, 0, len, (jbyte *) buffer);
-//    jclass jclazz = gPointInfo.env->FindClass("me/pqpo/smartcropperlib/JniCallBack");
-//    jmethodID jmethodIds = gPointInfo.env->GetMethodID(jclazz, "callBack",
-//                                                       "(Ljava/nio/ByteBuffer;)V");
-//    jobject object = gPointInfo.env->AllocObject(jclazz);
-//    gPointInfo.env->CallVoidMethod(object, jmethodIds, obj);
+int
+new_setInput(void *a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7, int a8) {
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo",
+                        "setInput被hook了..%d..%s..%d..%d..%d..%d..%d..%d",
+                        a1, a2, a3, a4, a5, a6, a7, a8);
+    callJava(a3, a8);
+    return orig_setInput(a1, a2, a3, a4, a5, a6, a7, a8);
 }
-
-//void
-//new_parseJ2cPoint(int a1, const char *a2, const void *a3, int a4, int a5, int a6, int a7, int a8) {
-//    __android_log_print(ANDROID_LOG_DEBUG, "iewoo", "我被hook了..%d..%s..%d..%d..%d..%d..%d..%d",
-//                        a1, a2, a3, a4, a5, a6, a7, a8);
-//}
 
 __attribute__((constructor)) static void ctor() {
     // Write hook functions here
@@ -155,18 +125,29 @@ __attribute__((constructor)) static void ctor() {
 //    void *address = DobbySymbolResolver(NULL, "_ZN14VcapdocScanner9netExcuteEv");
 //    DobbyHook(address, (dobby_dummy_func_t) new_parseJ2cPoint,
 //              (dobby_dummy_func_t *) &orig_parseJ2cPoint);
-
+//
     DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
-              (dobby_dummy_func_t) new_hbuuu,
-              (dobby_dummy_func_t *) &orig_hbuuu);
+              (dobby_dummy_func_t) new_getOut,
+              (dobby_dummy_func_t * ) & orig_getOut);
+    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii"),
+              (dobby_dummy_func_t) new_setInput,
+              (dobby_dummy_func_t * ) & orig_setInput);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_pqpo_smartcropperlib_SmartCropper_nativeCrop(JNIEnv *env, jclass type, jobject srcBitmap,
-                                                     jobjectArray points_, jobject outBitmap) {
-    std::vector<Point> points = pointsToNative(env, points_);
-    if (points.size() != 4) {
+Java_me_pqpo_smartcropperlib_SmartCropper_nativeCrop(JNIEnv
+                                                     *env,
+                                                     jclass type, jobject
+                                                     srcBitmap,
+                                                     jobjectArray points_, jobject
+                                                     outBitmap) {
+    std::vector <Point> points = pointsToNative(env, points_);
+    if (points.
+
+            size()
+
+        != 4) {
         return;
     }
     Point leftTop = points[0];
@@ -175,32 +156,56 @@ Java_me_pqpo_smartcropperlib_SmartCropper_nativeCrop(JNIEnv *env, jclass type, j
     Point leftBottom = points[3];
 
     Mat srcBitmapMat;
-    bitmap_to_mat(env, srcBitmap, srcBitmapMat);
+    bitmap_to_mat(env, srcBitmap, srcBitmapMat
+    );
 
     AndroidBitmapInfo outBitmapInfo;
-    AndroidBitmap_getInfo(env, outBitmap, &outBitmapInfo);
+    AndroidBitmap_getInfo(env, outBitmap, &outBitmapInfo
+    );
     Mat dstBitmapMat;
     int newHeight = outBitmapInfo.height;
     int newWidth = outBitmapInfo.width;
     dstBitmapMat = Mat::zeros(newHeight, newWidth, srcBitmapMat.type());
 
-    std::vector<Point2f> srcTriangle;
-    std::vector<Point2f> dstTriangle;
+    std::vector <Point2f> srcTriangle;
+    std::vector <Point2f> dstTriangle;
 
-    srcTriangle.push_back(Point2f(leftTop.x, leftTop.y));
-    srcTriangle.push_back(Point2f(rightTop.x, rightTop.y));
-    srcTriangle.push_back(Point2f(leftBottom.x, leftBottom.y));
-    srcTriangle.push_back(Point2f(rightBottom.x, rightBottom.y));
+    srcTriangle.
+            push_back(Point2f(leftTop.x, leftTop.y)
+    );
+    srcTriangle.
+            push_back(Point2f(rightTop.x, rightTop.y)
+    );
+    srcTriangle.
+            push_back(Point2f(leftBottom.x, leftBottom.y)
+    );
+    srcTriangle.
+            push_back(Point2f(rightBottom.x, rightBottom.y)
+    );
 
-    dstTriangle.push_back(Point2f(0, 0));
-    dstTriangle.push_back(Point2f(newWidth, 0));
-    dstTriangle.push_back(Point2f(0, newHeight));
-    dstTriangle.push_back(Point2f(newWidth, newHeight));
+    dstTriangle.
+            push_back(Point2f(0, 0)
+    );
+    dstTriangle.
+            push_back(Point2f(newWidth, 0)
+    );
+    dstTriangle.
+            push_back(Point2f(0, newHeight)
+    );
+    dstTriangle.
+            push_back(Point2f(newWidth, newHeight)
+    );
 
     Mat transform = getPerspectiveTransform(srcTriangle, dstTriangle);
-    warpPerspective(srcBitmapMat, dstBitmapMat, transform, dstBitmapMat.size());
+    warpPerspective(srcBitmapMat, dstBitmapMat, transform, dstBitmapMat
+            .
 
-    mat_to_bitmap(env, dstBitmapMat, outBitmap);
+                    size()
+
+    );
+
+    mat_to_bitmap(env, dstBitmapMat, outBitmap
+    );
 }
 
 //static JNINativeMethod gMethods[] = {
@@ -220,9 +225,11 @@ Java_me_pqpo_smartcropperlib_SmartCropper_nativeCrop(JNIEnv *env, jclass type, j
 //};
 
 extern "C"
-JNIEXPORT jint JNICALL
+JNIEXPORT jint
+
+JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv *env = NULL;
+    JNIEnv * env = NULL;
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
         return JNI_FALSE;
     }
