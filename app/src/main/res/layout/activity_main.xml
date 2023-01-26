@@ -12,7 +12,12 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
-
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="initLib"
+            android:layout_gravity="center_horizontal"
+            android:text="initLib"/>
         <Button
             android:id="@+id/btn_take"
             android:layout_width="wrap_content"

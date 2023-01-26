@@ -7,12 +7,7 @@ public class DocDetect {
     public static String TAG = "DocDetect";
 
     static {
-        try {
-            System.loadLibrary("doc_sdk_v1.5.1.0");
-            System.loadLibrary("smart_cropper");
-        } catch (Throwable unused) {
-            Log.e(TAG, "load library fail!");
-        }
+
     }
 
     public static native Object Resize(Object obj, int i2, Object obj2);

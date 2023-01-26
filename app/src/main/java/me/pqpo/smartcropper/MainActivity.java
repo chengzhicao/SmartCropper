@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -54,5 +55,10 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getPath());
             ivShow.setImageBitmap(bitmap);
         }
+    }
+
+    public void initLib(View view) {
+            System.loadLibrary("doc_sdk_v1.5.1.0");
+            System.loadLibrary("smart_cropper");
     }
 }
