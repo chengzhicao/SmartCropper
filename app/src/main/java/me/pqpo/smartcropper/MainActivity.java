@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -58,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initLib(View view) {
-            System.loadLibrary("doc_sdk_v1.5.1.0");
+//        SmartCropper.nativeInit();
+//            System.loadLibrary("doc_detect");
             System.loadLibrary("smart_cropper");
     }
 }

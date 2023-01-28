@@ -48,9 +48,13 @@ public class DocDetect {
 
     public static native boolean initDocDetectModel(byte[] bArr, int i2, boolean z, String str, int i3, byte[] bArr2);
 
+    public static native boolean initDocModel2(byte[] bArr, int i2, boolean z, String str, int i3, byte[] bArr2);
+
     public static native void releaseDocModel(int i2);
 
     public static native Object[] runDocDetect(Object obj, Object[] objArr, int i2);
+
+    public static native Object[] runDetect(Object obj, Object[] objArr, int i2);
 
     public static native Object runDocRectify(Object obj, Object[] objArr, Object obj2);
 }

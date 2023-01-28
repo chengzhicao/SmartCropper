@@ -8,6 +8,7 @@
 #include <android/log.h>
 #include "../../Dobby/include/dobby.h"
 #include "vcap_instance.h"
+#include <dlfcn.h>
 
 using namespace std;
 
@@ -130,19 +131,19 @@ __attribute__((constructor)) static void ctor() {
 //    DobbyHook(address, (dobby_dummy_func_t) new_parseJ2cPoint,
 //              (dobby_dummy_func_t *) &orig_parseJ2cPoint);
 //
-    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
-              (dobby_dummy_func_t) new_getOut,
-              (dobby_dummy_func_t *) &orig_getOut);
-    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii"),
-              (dobby_dummy_func_t) new_setInput,
-              (dobby_dummy_func_t *) &orig_setInput);
-    DobbyHook(DobbySymbolResolver(NULL, "_ZN14VcapdocScanner17initNetWithBufferEPciiPKcS0_"),
-              (dobby_dummy_func_t) new_initNet,
-              (dobby_dummy_func_t *) &orig_initNet);
-    DobbyHook(DobbySymbolResolver(NULL,
-                                  "_ZN12VcapInstance19createNeuralNetworkERN4vcap15VcapBuildConfigE"),
-              (dobby_dummy_func_t) new_createNeural,
-              (dobby_dummy_func_t *) &orig_createNeural);
+//    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance9getOutputEPKcPv"),
+//              (dobby_dummy_func_t) new_getOut,
+//              (dobby_dummy_func_t *) &orig_getOut);
+//    DobbyHook(DobbySymbolResolver(NULL, "_ZN12VcapInstance8setInputEPKcPKviiiii"),
+//              (dobby_dummy_func_t) new_setInput,
+//              (dobby_dummy_func_t *) &orig_setInput);
+//    DobbyHook(DobbySymbolResolver(NULL, "_ZN14VcapdocScanner17initNetWithBufferEPciiPKcS0_"),
+//              (dobby_dummy_func_t) new_initNet,
+//              (dobby_dummy_func_t *) &orig_initNet);
+//    DobbyHook(DobbySymbolResolver(NULL,
+//                                  "_ZN12VcapInstance19createNeuralNetworkERN4vcap15VcapBuildConfigE"),
+//              (dobby_dummy_func_t) new_createNeural,
+//              (dobby_dummy_func_t *) &orig_createNeural);
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -197,4 +198,60 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
     initClassInfo(env);
     return JNI_VERSION_1_4;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_pqpo_smartcropperlib_SmartCropper_nativeInit(JNIEnv *env, jclass clazz) {
+    void *handle = dlopen("libvcap_core.so", RTLD_LAZY);
+    int (*createNeuralNetwork)(vcap::BuildConfig *a2);
+    createNeuralNetwork = (int (*)(vcap::BuildConfig *a2)) dlsym(handle,
+                                                                 "_ZN12VcapInstance19createNeuralNetworkERN4vcap15VcapBuildConfigE");
+    vcap::BuildConfig config = vcap::BuildConfig();
+//    config.model_file = "/data/user/0/me.pqpo.smartcropper/files/v5.vaimlite";
+//    config.output_format = "NCHW";
+//    config.encrypt = false;
+//    config.log_level = vcap::LogLevel::INFO;
+//    config.device_type = vcap::VCAPDeviceType::VCAP_ARM_CPU;
+//    vcap::RuntimeConfig runtime = vcap::RuntimeConfig();
+//    runtime.output_format = vcap::NCHW;
+//    runtime.memory = vcap::TRAINING;
+//    runtime.cpu_num_threads = 0;
+//    runtime.power = vcap::LOW_PERFORMANCE;
+//    runtime.precision = vcap::PRECISION_FP16;
+//    runtime.framework = vcap::TENSORFLOW;
+//    runtime.feature_format = vcap::NCHW;
+//    runtime.dtype = vcap::DT_UINT16;
+//    runtime.keep_model_memory = true;
+//    runtime.quantize_type = vcap::NOQUANT;
+//    runtime.priority = vcap::LOW_PRIORITY;
+//    config.runtime_config = runtime;
+    int re = createNeuralNetwork(&config);
+    __android_log_print(ANDROID_LOG_DEBUG, "iewoo",
+                        "动态加载so了..%p。。%p..%d",
+                        createNeuralNetwork, handle, re);
+}
+void *handle;
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_wibo_doc_jni_DocDetect_initDocModel2(JNIEnv *env, jclass clazz, jbyteArray b_arr, jint i2,
+                                              jboolean z, jstring str, jint i3, jbyteArray b_arr2) {
+    handle = dlopen("libdoc_detect.so", RTLD_LAZY);
+    bool (*doc_detect)(JNIEnv *env, jclass clazz, jbyteArray b_arr, jint i2,
+                       jboolean z, jstring str, jint i3, jbyteArray b_arr2);
+    doc_detect = (bool (*)(JNIEnv *env, jclass clazz, jbyteArray b_arr, jint i2,
+                           jboolean z, jstring str, jint i3, jbyteArray b_arr2)) dlsym(handle,
+                                                                                       "Java_com_wibo_doc_jni_DocDetect_initDocDetectModel");
+    return doc_detect(env, clazz, b_arr, i2, z, str, i3, b_arr2);
+}
+extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_com_wibo_doc_jni_DocDetect_runDetect(JNIEnv *env, jclass clazz, jobject obj,
+                                          jobjectArray obj_arr, jint i2) {
+    jobjectArray (*doc_detect)(JNIEnv *env, jclass clazz, jobject obj,
+                       jobjectArray obj_arr, jint i2);
+    doc_detect = (jobjectArray (*)(JNIEnv *env, jclass clazz, jobject obj,
+                           jobjectArray obj_arr, jint i2)) dlsym(handle,
+                                                                 "Java_com_wibo_doc_jni_DocDetect_runDocDetect");
+    return doc_detect(env, clazz, obj,obj_arr,i2);
 }

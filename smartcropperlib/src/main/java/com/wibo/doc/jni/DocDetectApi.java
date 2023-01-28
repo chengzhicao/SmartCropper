@@ -58,7 +58,7 @@ public class DocDetectApi {
         objArr = null;
         if (bitmap != null) {
             if (!bitmap.isRecycled()) {
-                objArr = DocDetect.runDocDetect(bitmap, docPointArr, 1);
+                objArr = DocDetect.runDetect(bitmap, docPointArr, 1);
             }
         }
         return DocDetect.adjustPoints((DocPoint[]) objArr, bitmap.getWidth(), bitmap.getHeight(), 0);
@@ -133,7 +133,7 @@ public class DocDetectApi {
 //                isInitSuccess = true;
 //            }
             r4 = r0.open(com.wibo.doc.jni.DocDetectApi.mModelAssetsNameshot);
-            boolean r1 = com.wibo.doc.jni.DocDetect.initDocDetectModel(toByteArray(r4), 0, false, "", 1, new byte[]{});
+            boolean r1 = com.wibo.doc.jni.DocDetect.initDocModel2(toByteArray(r4), 0, false, "", 1, new byte[]{});
             if (r1) {
                 isInitSuccess = true;
             }
