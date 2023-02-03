@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void initLib(View view) {
 //        SmartCropper.nativeInit();
-//            System.loadLibrary("doc_detect");
+            System.loadLibrary("doc_detect");
             System.loadLibrary("smart_cropper");
     }
 }
